@@ -14,12 +14,6 @@
     [
       "@semantic-release/npm",
       {
-        "npmPublish": true
-      }
-    ],
-    [
-      "@semantic-release/npm",
-      {
         "npmPublish": true,
         "registry": "https://npm.pkg.github.com",
         "pkgRoot": "apps/cli"
