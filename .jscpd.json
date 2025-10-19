@@ -1,0 +1,15 @@
+{
+  "threshold": 2,
+  "min-lines": 10,
+  "min-tokens": 50,
+  "ignore": [
+    "**/*.test.ts",
+    "**/*.spec.ts",
+    "**/*.test.tsx",
+    "**/*.spec.tsx",
+    "**/dist/**",
+    "**/node_modules/**"
+  ],
+  "format": ["typescript", "javascript", "tsx"],
+  "path": ["apps/client/src/", "apps/server/", "apps/cli/src/", "packages/"]
+}
