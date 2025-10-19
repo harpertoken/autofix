@@ -1,4 +1,6 @@
-import { generateTextCompletion as sharedGenerateTextCompletion } from '../../../packages/shared/gemini.js';
+const {
+  generateTextCompletion: sharedGenerateTextCompletion,
+} = require('../../../../packages/shared/gemini.cjs');
 
 export async function generateTextCompletion(
   currentText: string,

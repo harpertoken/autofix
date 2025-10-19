@@ -2,7 +2,7 @@
 Object.defineProperty(exports, '__esModule', { value: true });
 exports.generateTextCompletion = generateTextCompletion;
 const genai_1 = require('@google/genai');
-const prompts_js_1 = require('./prompts.js');
+const prompts_js_1 = require('./prompts.cjs');
 const ai = new genai_1.GoogleGenAI({
   apiKey: process.env.GEMINI_API_KEY || '',
 });
