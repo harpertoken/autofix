@@ -8,9 +8,15 @@
     "**/*.test.tsx",
     "**/*.spec.tsx",
     "**/dist/**",
-    "**/node_modules/**"
+    "**/node_modules/**",
+    "packages/shared/gemini.ts",
+    "packages/shared/prompts.ts"
   ],
-  "ignoreSource": ["apps/cli/src/gemini.ts"],
+  "ignoreSource": [
+    "apps/cli/src/gemini.ts",
+    "packages/shared/gemini.ts",
+    "packages/shared/prompts.ts"
+  ],
   "format": ["typescript", "javascript", "tsx"],
-  "path": ["apps/client/src/", "apps/server/", "apps/cli/src/", "packages/"]
+  "path": ["apps/client/src/", "apps/server/", "apps/cli/src/"]
 }
