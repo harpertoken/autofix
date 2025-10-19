@@ -4,51 +4,63 @@ import express2 from 'express';
 import { createServer } from 'http';
 
 // apps/server/gemini.ts
+import { GoogleGenAI as GoogleGenAI2 } from '@google/genai';
+
+// packages/shared/gemini.ts
 import { GoogleGenAI } from '@google/genai';
+
+// packages/shared/prompts.ts
+function buildSystemPrompt(mode, style) {
+  let systemPrompt = '';
+  switch (mode) {
+    case 'word':
+      systemPrompt =
+        "You are a helpful writing assistant. Complete the user's text with the next 1-3 words that would naturally follow. Be concise and contextually appropriate.";
+      break;
+    case 'sentence':
+      systemPrompt =
+        "You are a helpful writing assistant. Continue the user's text with the next sentence or complete their current sentence naturally.";
+      break;
+    case 'paragraph':
+      systemPrompt =
+        "You are a helpful writing assistant. Expand on the user's text with a full paragraph that continues their ideas logically.";
+      break;
+  }
+  switch (style) {
+    case 'formal':
+      systemPrompt += ' Use formal, professional language.';
+      break;
+    case 'creative':
+      systemPrompt +=
+        ' Use creative, expressive language with vivid descriptions.';
+      break;
+    case 'technical':
+      systemPrompt +=
+        ' Use precise, technical language appropriate for documentation or technical writing.';
+      break;
+    case 'casual':
+    default:
+      systemPrompt += ' Use casual, conversational language.';
+      break;
+  }
+  systemPrompt +=
+    " Do NOT repeat the user's text. Only provide the continuation. Keep it brief and natural.";
+  return systemPrompt;
+}
+
+// packages/shared/gemini.ts
 var ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY || '' });
 async function generateTextCompletion(
   currentText,
   mode = 'sentence',
-  style = 'casual'
+  style = 'casual',
+  model = 'gemini-2.0-flash'
 ) {
   console.log('Generating text completion for:', { currentText, mode, style });
   try {
-    let systemPrompt = '';
-    switch (mode) {
-      case 'word':
-        systemPrompt =
-          "You are a helpful writing assistant. Complete the user's text with the next 1-3 words that would naturally follow. Be concise and contextually appropriate.";
-        break;
-      case 'sentence':
-        systemPrompt =
-          "You are a helpful writing assistant. Continue the user's text with the next sentence or complete their current sentence naturally.";
-        break;
-      case 'paragraph':
-        systemPrompt =
-          "You are a helpful writing assistant. Expand on the user's text with a full paragraph that continues their ideas logically.";
-        break;
-    }
-    switch (style) {
-      case 'formal':
-        systemPrompt += ' Use formal, professional language.';
-        break;
-      case 'creative':
-        systemPrompt +=
-          ' Use creative, expressive language with vivid descriptions.';
-        break;
-      case 'technical':
-        systemPrompt +=
-          ' Use precise, technical language appropriate for documentation or technical writing.';
-        break;
-      case 'casual':
-      default:
-        systemPrompt += ' Use casual, conversational language.';
-        break;
-    }
-    systemPrompt +=
-      " Do NOT repeat the user's text. Only provide the continuation. Keep it brief and natural.";
+    const systemPrompt = buildSystemPrompt(mode, style);
     const response = await ai.models.generateContent({
-      model: 'gemini-2.0-flash',
+      model,
       config: {
         systemInstruction: systemPrompt,
         temperature: 0.7,
@@ -68,6 +80,33 @@ async function generateTextCompletion(
   } catch (error) {
     console.error('Generation error:', error);
     return '';
+  }
+}
+
+// apps/server/gemini.ts
+var ai2 = new GoogleGenAI2({ apiKey: process.env.GEMINI_API_KEY || '' });
+async function testApiKey() {
+  try {
+    console.log('Testing API key...');
+    if (!process.env.GEMINI_API_KEY) {
+      console.log('No API key set');
+      return false;
+    }
+    const response = await ai2.models.generateContent({
+      model: 'gemini-2.0-flash',
+      config: {
+        systemInstruction: 'Respond with "ok"',
+        temperature: 0,
+        maxOutputTokens: 5,
+      },
+      contents: 'Hello world',
+    });
+    const result = !!response.text?.trim();
+    console.log('Test result:', result);
+    return result;
+  } catch (error) {
+    console.log('Test failed:', error);
+    return false;
   }
 }
 
@@ -100,6 +139,16 @@ var textCompletionResponseSchema = z.object({
 
 // apps/server/routes.ts
 function registerRoutes(app2) {
+  app2.get('/api/status', async (req, res) => {
+    try {
+      const isWorking = await testApiKey();
+      console.log('Status check result:', isWorking);
+      res.json({ status: isWorking ? 'ok' : 'error' });
+    } catch (error) {
+      console.error('Status check error:', error);
+      res.status(500).json({ status: 'error' });
+    }
+  });
   app2.post('/api/complete', async (req, res) => {
     try {
       const {
@@ -130,29 +179,25 @@ import { createServer as createViteServer, createLogger } from 'vite';
 import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
 import path from 'path';
+import { fileURLToPath } from 'url';
 import runtimeErrorOverlay from '@replit/vite-plugin-runtime-error-modal';
-import tailwindcss from 'tailwindcss';
-import autoprefixer from 'autoprefixer';
+var __dirname = path.dirname(fileURLToPath(import.meta.url));
 var vite_config_default = defineConfig({
   plugins: [react(), runtimeErrorOverlay()],
-  css: {
-    postcss: {
-      plugins: [tailwindcss, autoprefixer],
-    },
-  },
   resolve: {
     alias: {
-      '@': path.resolve(import.meta.dirname, 'apps/client', 'src'),
-      '@shared': path.resolve(import.meta.dirname, 'packages/shared'),
-      '@assets': path.resolve(import.meta.dirname, 'attached_assets'),
+      '@': path.resolve(__dirname, 'apps/client/src'),
+      '@shared': path.resolve(__dirname, 'packages/shared'),
+      '@assets': path.resolve(__dirname, 'attached_assets'),
     },
   },
-  root: path.resolve(import.meta.dirname, 'apps/client'),
-  publicDir: path.resolve(import.meta.dirname, 'apps/client/public'),
+  root: 'apps/client',
+  publicDir: 'public',
   build: {
-    outDir: path.resolve(import.meta.dirname, 'dist'),
+    outDir: path.resolve(__dirname, 'dist'),
+    emptyOutDir: true,
     rollupOptions: {
-      input: 'apps/client/index.html',
+      input: path.resolve(__dirname, 'apps/client/index.html'),
     },
   },
   server: {

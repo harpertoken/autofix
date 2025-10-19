@@ -10,6 +10,7 @@
     "**/dist/**",
     "**/node_modules/**"
   ],
+  "ignoreSource": ["apps/cli/src/gemini.ts"],
   "format": ["typescript", "javascript", "tsx"],
   "path": ["apps/client/src/", "apps/server/", "apps/cli/src/", "packages/"]
 }
