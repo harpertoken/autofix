@@ -122,10 +122,7 @@ var users = pgTable('users', {
   username: text('username').notNull().unique(),
   password: text('password').notNull(),
 });
-var insertUserSchema = createInsertSchema(users).pick({
-  username: true,
-  password: true,
-});
+
 var textCompletionRequestSchema = z.object({
   text: z.string(),
   mode: z.enum(['word', 'sentence', 'paragraph']).default('sentence'),
