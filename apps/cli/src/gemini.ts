@@ -1,4 +1,4 @@
-import { generateTextCompletion as sharedGenerateTextCompletion } from './shared/gemini.js';
+import { generateTextCompletion as sharedGenerateTextCompletion } from '../../../packages/shared/gemini.js';
 
 export async function generateTextCompletion(
   currentText: string,

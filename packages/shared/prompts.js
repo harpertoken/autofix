@@ -1,9 +1,8 @@
-export function buildSystemPrompt(
-  mode: 'word' | 'sentence' | 'paragraph',
-  style: 'casual' | 'formal' | 'creative' | 'technical'
-): string {
+'use strict';
+Object.defineProperty(exports, '__esModule', { value: true });
+exports.buildSystemPrompt = buildSystemPrompt;
+function buildSystemPrompt(mode, style) {
   let systemPrompt = '';
-
   switch (mode) {
     case 'word':
       systemPrompt =
@@ -18,7 +17,6 @@ export function buildSystemPrompt(
         "You are a helpful writing assistant. Expand on the user's text with a full paragraph that continues their ideas logically.";
       break;
   }
-
   switch (style) {
     case 'formal':
       systemPrompt += ' Use formal, professional language.';
@@ -36,9 +34,7 @@ export function buildSystemPrompt(
       systemPrompt += ' Use casual, conversational language.';
       break;
   }
-
   systemPrompt +=
     " Do NOT repeat the user's text. Only provide the continuation. Keep it brief and natural.";
-
   return systemPrompt;
 }
