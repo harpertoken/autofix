@@ -2,12 +2,12 @@ import * as React from 'react';
 import { Check, Circle } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
-interface MenuItemProps extends React.ComponentPropsWithoutRef<any> {
+interface MenuItemProps extends React.HTMLAttributes<HTMLElement> {
   inset?: boolean;
 }
 
-export function createMenuItem(ItemPrimitive: any) {
-  const MenuItem = React.forwardRef<any, MenuItemProps>(
+export function createMenuItem(ItemPrimitive: React.ComponentType<any>) {
+  const MenuItem = React.forwardRef<HTMLElement, MenuItemProps>(
     ({ className, inset, ...props }, ref) => (
       <ItemPrimitive
         ref={ref}
@@ -20,7 +20,7 @@ export function createMenuItem(ItemPrimitive: any) {
       />
     )
   );
-  MenuItem.displayName = 'MenuItem';
+  MenuItem.displayName = (ItemPrimitive as any).displayName || 'MenuItem';
   return MenuItem;
 }
 
@@ -49,7 +49,8 @@ export function createMenuCheckboxItem(
       {children}
     </CheckboxItemPrimitive>
   ));
-  MenuCheckboxItem.displayName = 'MenuCheckboxItem';
+  MenuCheckboxItem.displayName =
+    (CheckboxItemPrimitive as any).displayName || 'MenuCheckboxItem';
   return MenuCheckboxItem;
 }
 
@@ -77,7 +78,8 @@ export function createMenuRadioItem(
       {children}
     </RadioItemPrimitive>
   ));
-  MenuRadioItem.displayName = 'MenuRadioItem';
+  MenuRadioItem.displayName =
+    (RadioItemPrimitive as any).displayName || 'MenuRadioItem';
   return MenuRadioItem;
 }
 
@@ -92,6 +94,6 @@ export function createMenuLabel(LabelPrimitive: any, labelClass: string) {
       {...props}
     />
   ));
-  MenuLabel.displayName = 'MenuLabel';
+  MenuLabel.displayName = (LabelPrimitive as any).displayName || 'MenuLabel';
   return MenuLabel;
 }
