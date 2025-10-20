@@ -1,7 +1,4 @@
-import { GoogleGenAI } from '@google/genai';
-import { generateTextCompletion } from '../../packages/shared/gemini.js';
-
-const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY || '' });
+import { ai, generateTextCompletion } from '../../packages/shared/gemini.js';
 
 export async function testApiKey(): Promise<boolean> {
   try {
