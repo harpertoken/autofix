@@ -2,12 +2,10 @@ import * as React from 'react';
 import { Check, Circle } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
-interface MenuItemProps extends React.HTMLAttributes<HTMLElement> {
-  inset?: boolean;
-}
+export function createMenuItem<T extends React.ElementType>(ItemPrimitive: T) {
+  type Props = React.ComponentPropsWithoutRef<T> & { inset?: boolean };
 
-export function createMenuItem(ItemPrimitive: React.ComponentType<any>) {
-  const MenuItem = React.forwardRef<HTMLElement, MenuItemProps>(
+  const MenuItem = React.forwardRef<React.ElementRef<T>, Props>(
     ({ className, inset, ...props }, ref) => (
       <ItemPrimitive
         ref={ref}
@@ -16,7 +14,7 @@ export function createMenuItem(ItemPrimitive: React.ComponentType<any>) {
           inset && 'pl-8',
           className
         )}
-        {...props}
+        {...(props as any)}
       />
     )
   );
@@ -25,12 +23,15 @@ export function createMenuItem(ItemPrimitive: React.ComponentType<any>) {
 }
 
 export function createMenuCheckboxItem(
-  CheckboxItemPrimitive: any,
-  ItemIndicatorPrimitive: any
+  CheckboxItemPrimitive: React.ComponentType<any>,
+  ItemIndicatorPrimitive: React.ComponentType<any>
 ) {
   const MenuCheckboxItem = React.forwardRef<
-    any,
-    React.ComponentPropsWithoutRef<any>
+    HTMLElement,
+    React.HTMLAttributes<HTMLElement> & {
+      children?: React.ReactNode;
+      checked?: boolean;
+    }
   >(({ className, children, checked, ...props }, ref) => (
     <CheckboxItemPrimitive
       ref={ref}
@@ -55,12 +56,14 @@ export function createMenuCheckboxItem(
 }
 
 export function createMenuRadioItem(
-  RadioItemPrimitive: any,
-  ItemIndicatorPrimitive: any
+  RadioItemPrimitive: React.ComponentType<any>,
+  ItemIndicatorPrimitive: React.ComponentType<any>
 ) {
   const MenuRadioItem = React.forwardRef<
-    any,
-    React.ComponentPropsWithoutRef<any>
+    HTMLElement,
+    React.HTMLAttributes<HTMLElement> & {
+      children?: React.ReactNode;
+    }
   >(({ className, children, ...props }, ref) => (
     <RadioItemPrimitive
       ref={ref}
@@ -83,10 +86,13 @@ export function createMenuRadioItem(
   return MenuRadioItem;
 }
 
-export function createMenuLabel(LabelPrimitive: any, labelClass: string) {
+export function createMenuLabel(
+  LabelPrimitive: React.ComponentType<any>,
+  labelClass: string
+) {
   const MenuLabel = React.forwardRef<
-    any,
-    React.ComponentPropsWithoutRef<any> & { inset?: boolean }
+    HTMLElement,
+    React.HTMLAttributes<HTMLElement> & { inset?: boolean }
   >(({ className, inset, ...props }, ref) => (
     <LabelPrimitive
       ref={ref}
