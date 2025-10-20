@@ -1,7 +1,7 @@
 import { GoogleGenAI } from '@google/genai';
 import { buildSystemPrompt } from './prompts.js';
 
-const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY || '' });
+export const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY || '' });
 
 export async function generateTextCompletion(
   currentText: string,
