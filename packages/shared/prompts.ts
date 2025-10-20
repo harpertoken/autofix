@@ -1,6 +1,4 @@
-import { GoogleGenAI } from '@google/genai';
-
-function buildSystemPrompt(
+export function buildSystemPrompt(
   mode: 'word' | 'sentence' | 'paragraph',
   style: 'casual' | 'formal' | 'creative' | 'technical'
 ): string {
@@ -43,43 +41,4 @@ function buildSystemPrompt(
     " Do NOT repeat the user's text. Only provide the continuation. Keep it brief and natural.";
 
   return systemPrompt;
-}
-
-const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY || '' });
-
-export async function generateTextCompletion(
-  currentText: string,
-  mode: 'word' | 'sentence' | 'paragraph' = 'sentence',
-  style: 'casual' | 'formal' | 'creative' | 'technical' = 'casual'
-): Promise<string> {
-  console.log('Generating text completion for:', { currentText, mode, style });
-  try {
-    const systemPrompt = buildSystemPrompt(mode, style);
-
-    const response = await ai.models.generateContent({
-      model: 'gemini-2.0-flash-exp',
-      config: {
-        systemInstruction: systemPrompt,
-        temperature: 0.7,
-        maxOutputTokens: mode === 'word' ? 10 : mode === 'sentence' ? 50 : 150,
-      },
-      contents: currentText,
-    });
-
-    const suggestion = response.text?.trim() || '';
-
-    if (!suggestion) {
-      return '';
-    }
-
-    if (mode === 'word' && !currentText.endsWith(' ')) {
-      return suggestion;
-    }
-
-    console.log('Generated suggestion:', suggestion);
-    return suggestion.startsWith(' ') ? suggestion : ' ' + suggestion;
-  } catch (error) {
-    console.error('Generation error:', error);
-    return '';
-  }
 }
