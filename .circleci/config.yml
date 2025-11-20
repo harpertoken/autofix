@@ -101,16 +101,14 @@ jobs:
       - image: cimg/node:22
     steps:
       - setup_node
+      # The security_scan job contains two npm audit commands that create redundant and confusing logic. The first command, npm audit --audit-level moderate, will fail the entire job if a moderate (or higher) vulnerability is found. This means the second, more specific check for high severity vulnerabilities might never run. To make the intent clear and the logic robust, you should use a single, decisive npm audit command. If the goal is to fail only on high severity issues, the first command should be removed.
       - run:
           name: "Run security audit"
-          command: npm audit --audit-level moderate
-      - run:
-          name: "Check for vulnerabilities"
           command: |
             if npm audit --audit-level high; then
               echo "No high severity vulnerabilities found"
             else
-              echo "High severity vulnerabilities detected"
+              echo "High severity vulnerabilities detected. Failing build."
               exit 1
             fi
 
