@@ -161,12 +161,6 @@ gh workflow enable "CLI"
 gh workflow disable "E2E Tests"
 ```
 
-Validate workflow YAML:
-
-```bash
-python3 -c "import yaml; yaml.safe_load(open('.github/workflows/release.yml')); print('Valid')"
-```
-
 For comprehensive linting of GitHub Actions workflows, install [actionlint](https://github.com/rhysd/actionlint):
 
 ```bash
