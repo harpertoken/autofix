@@ -45,7 +45,7 @@ AI-powered text completion platform featuring a command-line tool, modern web ed
 1. Clone the repository:
 
    ```bash
-    git clone https://github.com/bniladridas/autofix.git
+    git clone https://github.com/harpertoken/autofix.git
    cd autofix
    ```
 
