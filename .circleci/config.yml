@@ -158,17 +158,17 @@ workflows:
       - build_and_test_cli:
           requires:
             - lint_and_test
-          <<: *filters_ci
+          filters: *filters_ci
       - build_web_app:
           requires:
             - lint_and_test
-          <<: *filters_ci
+          filters: *filters_ci
       - e2e_tests:
           requires:
             - build_web_app
-          <<: *filters_ci
+          filters: *filters_ci
       - security_scan:
-          <<: *filters_ci
+          filters: *filters_ci
 
   # Run on pull requests only
   pr_checks:
@@ -180,4 +180,4 @@ workflows:
                 - main
                 - circleci-project-setup
       - security_scan:
-          <<: *filters_pr
+          filters: *filters_pr
