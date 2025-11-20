@@ -150,7 +150,6 @@ workflows:
   ci_pipeline:
     jobs:
       - lint_and_test:
-          <<: *filters_ci
           filters: &filters_ci
             branches:
               only:
@@ -175,7 +174,6 @@ workflows:
   pr_checks:
     jobs:
       - lint_and_test:
-          <<: *filters_pr
           filters: &filters_pr
             branches:
               ignore:
