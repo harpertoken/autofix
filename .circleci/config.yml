@@ -110,6 +110,38 @@ jobs:
               exit 1
             fi
 
+# The filters block for branch matching is duplicated across every job in the ci_pipeline and pr_checks workflows. This leads to a verbose configuration that is difficult to maintain, as any change to the branch logic must be replicated in many places.
+# To improve maintainability and adhere to the DRY (Don't Repeat Yourself) principle, you can use YAML anchors to define these filters once and reuse them.
+# Here is an example of how you could refactor this:
+# .filters_ci: &filters_ci
+#   filters:
+#     branches:
+#       only:
+#         - main
+#         - circleci-project-setup
+# .filters_pr: &filters_pr
+#   filters:
+#     branches:
+#       ignore:
+#         - main
+#         - circleci-project-setup
+# In your workflows
+# workflows:
+#   version: 2
+#   ci_pipeline:
+#     jobs:
+#       - lint_and_test:
+#           <<: *filters_ci
+#       - build_and_test_cli:
+#           requires: [lint_and_test]
+#           <<: *filters_ci
+#       # ... etc.
+#   pr_checks:
+#     jobs:
+#       - lint_and_test:
+#           <<: *filters_pr
+#       # ... etc.
+
 # Define workflows
 workflows:
   version: 2
@@ -118,6 +150,7 @@ workflows:
   ci_pipeline:
     jobs:
       - lint_and_test:
+          <<: *filters_ci
           filters:
             branches:
               only:
@@ -126,46 +159,27 @@ workflows:
       - build_and_test_cli:
           requires:
             - lint_and_test
-          filters:
-            branches:
-              only:
-                - main
-                - circleci-project-setup
+          <<: *filters_ci
       - build_web_app:
           requires:
             - lint_and_test
-          filters:
-            branches:
-              only:
-                - main
-                - circleci-project-setup
+          <<: *filters_ci
       - e2e_tests:
           requires:
             - build_web_app
-          filters:
-            branches:
-              only:
-                - main
-                - circleci-project-setup
+          <<: *filters_ci
       - security_scan:
-          filters:
-            branches:
-              only:
-                - main
-                - circleci-project-setup
+          <<: *filters_ci
 
   # Run on pull requests only
   pr_checks:
     jobs:
       - lint_and_test:
+          <<: *filters_pr
           filters:
             branches:
               ignore:
                 - main
                 - circleci-project-setup
       - security_scan:
-          filters:
-            branches:
-              ignore:
-                - main
-                - circleci-project-setup
+          <<: *filters_pr
