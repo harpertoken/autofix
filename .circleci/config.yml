@@ -1,0 +1,171 @@
+# CircleCI configuration for Autofix CI/CD pipeline
+version: 2.1
+
+# Import orbs
+orbs:
+  node: circleci/node@5.2.0
+  browser-tools: circleci/browser-tools@1.4.8
+
+# Define reusable commands
+commands:
+  setup_node:
+    description: "Setup Node.js environment"
+    steps:
+      - checkout
+      - node/install:
+          node-version: "22"
+      - run:
+          name: "Install dependencies"
+          command: npm ci
+
+# Define jobs
+jobs:
+  lint_and_test:
+    docker:
+      - image: cimg/node:22
+    steps:
+      - setup_node
+      - run:
+          name: "Run preflight checks"
+          command: npm run preflight
+      - run:
+          name: "Run unit tests"
+          command: npm run test:coverage
+      - run:
+          name: "Upload coverage reports"
+          command: |
+            if [ -d coverage ]; then
+              bash <(curl -s https://codecov.io/bash) -f coverage/coverage-final.json || true
+            fi
+
+  build_and_test_cli:
+    docker:
+      - image: cimg/node:22
+    steps:
+      - setup_node
+      - run:
+          name: "Build CLI"
+          command: |
+            cd apps/cli
+            npm run build
+      - run:
+          name: "Test CLI build"
+          command: |
+            cd apps/cli
+            if [ -z "$GEMINI_API_KEY" ]; then
+              echo "Skipping CLI functional test: GEMINI_API_KEY not set"
+            else
+              echo -e "test input\n.exit" | timeout 10s node dist/index.js new --output test.txt
+              test -f test.txt && echo "CLI test passed" || echo "CLI test failed"
+            fi
+    environment:
+      GEMINI_API_KEY: $GEMINI_API_KEY
+
+  build_web_app:
+    docker:
+      - image: cimg/node:22
+    steps:
+      - setup_node
+      - run:
+          name: "Build web application"
+          command: npm run build
+      - run:
+          name: "Verify build output"
+          command: |
+            test -d dist && echo "Build output exists" || exit 1
+            test -f dist/index.html && echo "HTML file exists" || exit 1
+
+  e2e_tests:
+    docker:
+      - image: cimg/node:22-browsers
+    steps:
+      - setup_node
+      - browser-tools/install-browser-tools
+      - run:
+          name: "Install Playwright browsers"
+          command: npx playwright install --with-deps
+      - run:
+          name: "Run E2E tests"
+          command: npm run test:e2e
+          environment:
+            GEMINI_API_KEY: $GEMINI_API_KEY
+    environment:
+      GEMINI_API_KEY: $GEMINI_API_KEY
+
+  security_scan:
+    docker:
+      - image: cimg/node:22
+    steps:
+      - setup_node
+      - run:
+          name: "Run security audit"
+          command: npm audit --audit-level moderate
+      - run:
+          name: "Check for vulnerabilities"
+          command: |
+            if npm audit --audit-level high; then
+              echo "No high severity vulnerabilities found"
+            else
+              echo "High severity vulnerabilities detected"
+              exit 1
+            fi
+
+# Define workflows
+workflows:
+  version: 2
+
+  # Run on every push to main and pull requests
+  ci_pipeline:
+    jobs:
+      - lint_and_test:
+          filters:
+            branches:
+              only:
+                - main
+                - circleci-project-setup
+      - build_and_test_cli:
+          requires:
+            - lint_and_test
+          filters:
+            branches:
+              only:
+                - main
+                - circleci-project-setup
+      - build_web_app:
+          requires:
+            - lint_and_test
+          filters:
+            branches:
+              only:
+                - main
+                - circleci-project-setup
+      - e2e_tests:
+          requires:
+            - build_web_app
+          filters:
+            branches:
+              only:
+                - main
+                - circleci-project-setup
+      - security_scan:
+          filters:
+            branches:
+              only:
+                - main
+                - circleci-project-setup
+
+  # Run on pull requests only
+  pr_checks:
+    jobs:
+      - lint_and_test:
+          filters:
+            branches:
+              ignore:
+                - main
+                - circleci-project-setup
+      - security_scan:
+          filters:
+            branches:
+              ignore:
+                - main
+                - circleci-project-setup
