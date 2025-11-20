@@ -28,9 +28,7 @@ jobs:
       - run:
           name: "Run preflight checks"
           command: npm run preflight
-      - run:
-          name: "Run unit tests"
-          command: npm run test:coverage
+      # The lint_and_test job runs unit tests twice. The npm run preflight script, executed in the preceding step, already includes the npm run test:coverage command. This separate Run unit tests step is therefore redundant, increasing CI job duration and cost unnecessarily. Please remove this duplicate step.
       - run:
           name: "Upload coverage reports"
           command: |
