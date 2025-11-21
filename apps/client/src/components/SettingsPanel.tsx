@@ -104,8 +104,11 @@ export function SettingsPanel({
 
               <TabsContent value="writing" className="space-y-4 mt-6">
                 <div className="space-y-3">
-                  <label htmlFor="ai-provider" className="text-sm font-medium">
-                    ai provider
+                  <label
+                    htmlFor="completion-mode"
+                    className="text-sm font-medium"
+                  >
+                    completion
                   </label>
                   <select
                     id="completion-mode"
@@ -125,8 +128,11 @@ export function SettingsPanel({
                 </div>
 
                 <div className="space-y-3">
-                  <label htmlFor="gemini-model" className="text-sm font-medium">
-                    gemini model
+                  <label
+                    htmlFor="writing-style"
+                    className="text-sm font-medium"
+                  >
+                    style
                   </label>
                   <select
                     id="writing-style"
@@ -166,7 +172,7 @@ export function SettingsPanel({
               <TabsContent value="ai" className="space-y-4 mt-6">
                 <div className="space-y-3">
                   <label htmlFor="ai-provider" className="text-sm font-medium">
-                    AI provider
+                    ai provider
                   </label>
                   <select
                     id="ai-provider"
@@ -187,7 +193,7 @@ export function SettingsPanel({
 
                 <div className="space-y-3">
                   <label htmlFor="gemini-model" className="text-sm font-medium">
-                    Gemini model
+                    gemini model
                   </label>
                   <select
                     id="gemini-model"
