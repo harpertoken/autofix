@@ -69,7 +69,7 @@ export function SettingsPanel({
       )}
 
       <div
-        className={`fixed top-0 right-0 h-full w-80 bg-card border-l shadow-xl z-50 transform transition-transform duration-200 ease-in-out ${
+        className={`fixed top-0 right-0 h-full w-96 bg-card border-l shadow-xl z-50 transform transition-transform duration-200 ease-in-out ${
           isOpen ? 'translate-x-0' : 'translate-x-full'
         }`}
         data-testid="panel-settings"
