@@ -25,6 +25,13 @@ const colors: Record<LogLevel, string> = {
 
 const reset = '\x1b[0m';
 
+function getCurrentLogLevelValue(): number {
+  const envLevel = process.env.LOG_LEVEL as LogLevel | undefined;
+  return envLevel && LOG_LEVELS[envLevel] !== undefined
+    ? LOG_LEVELS[envLevel]
+    : LOG_LEVELS.log;
+}
+
 function print(level: LogLevel, message: string, args: unknown[]) {
   if (LOG_LEVELS[level] > getCurrentLogLevelValue()) return;
 
@@ -55,9 +62,7 @@ export const logger = {
    * Structured JSON logging for automated processing
    */
   json(level: LogLevel, data: Record<string, unknown>) {
-    const currentLevel =
-      LOG_LEVELS[(process.env.LOG_LEVEL as LogLevel) || 'log'] ??
-      LOG_LEVELS.log;
+    const currentLevel = getCurrentLogLevelValue();
     if (LOG_LEVELS[level] > currentLevel) return;
     console[level](
       JSON.stringify({ level, timestamp: new Date().toISOString(), ...data })

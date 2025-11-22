@@ -48,7 +48,7 @@ const configuredApp = registerRoutes(app);
 
 configuredApp.use(
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  (err: HttpError, _req: Request, res: Response, _next: NextFunction) => {
+  (err: any, _req: Request, res: Response, _next: NextFunction) => {
     const status = err.status || err.statusCode || 500;
     const message = err.message || 'Internal Server Error';
 
