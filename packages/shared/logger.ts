@@ -26,9 +26,7 @@ const colors: Record<LogLevel, string> = {
 const reset = '\x1b[0m';
 
 function print(level: LogLevel, message: string, args: unknown[]) {
-  const currentLevel =
-    LOG_LEVELS[(process.env.LOG_LEVEL as LogLevel) || 'log'] ?? LOG_LEVELS.log;
-  if (LOG_LEVELS[level] > currentLevel) return;
+  if (LOG_LEVELS[level] > getCurrentLogLevelValue()) return;
 
   const formatted = withTimestamp(level, message);
   const useColor = process.stdout.isTTY;
