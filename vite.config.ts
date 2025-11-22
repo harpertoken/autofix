@@ -7,7 +7,21 @@ import runtimeErrorOverlay from '@replit/vite-plugin-runtime-error-modal';
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 export default defineConfig({
-  plugins: [react(), runtimeErrorOverlay()],
+  plugins: [
+    react(),
+    runtimeErrorOverlay(),
+    {
+      name: 'suppress-postcss-warning',
+      configureServer(_server) {
+        const originalWarn = console.warn;
+        console.warn = (message, ...args) => {
+          if (message.includes('PostCSS plugin did not pass the `from` option'))
+            return;
+          originalWarn(message, ...args);
+        };
+      },
+    },
+  ],
 
   resolve: {
     alias: {
