@@ -12,11 +12,15 @@ export default defineConfig({
     runtimeErrorOverlay(),
     {
       name: 'suppress-postcss-warning',
-      configureServer(_server) {
+      configureServer() {
         const originalWarn = console.warn;
         console.warn = (message, ...args) => {
-          if (message.includes('PostCSS plugin did not pass the `from` option'))
+          if (
+            typeof message === 'string' &&
+            message.includes('PostCSS plugin did not pass the `from` option')
+          ) {
             return;
+          }
           originalWarn(message, ...args);
         };
       },
