@@ -1,6 +1,7 @@
 import { useState, useRef, useEffect } from 'react';
 import React from 'react';
 import { Sparkles } from 'lucide-react';
+import { generateCompletion } from '../lib/api';
 
 interface TextEditorProps {
   onTextChange?: (text: string) => void;
@@ -45,23 +46,16 @@ export function TextEditor({
     setShowModelSwitch(false);
 
     try {
-      const response = await fetch('/api/complete', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          text: currentText,
-          mode: completionMode,
-          style: writingStyle,
-          provider: aiProvider,
-          geminiApiKey: geminiApiKey || undefined,
-          sambaNovaApiKey: sambaNovaApiKey || undefined,
-          geminiModel,
-        }),
+      const data = await generateCompletion({
+        text: currentText,
+        mode: completionMode,
+        style: writingStyle,
+        provider: aiProvider,
+        geminiApiKey: geminiApiKey || undefined,
+        sambaNovaApiKey: sambaNovaApiKey || undefined,
+        geminiModel,
       });
 
-      const data = await response.json();
       const newSuggestion = data.suggestion || '';
       setSuggestion(newSuggestion);
       if (!newSuggestion) {

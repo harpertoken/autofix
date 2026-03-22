@@ -47,9 +47,10 @@ test('CLI edit command modifies existing file', async () => {
     }
   );
 
-  // Check if file content was modified
+  // Check if file content was modified (new content is appended to original)
   const content = fs.readFileSync('apps/cli/edit-test.txt', 'utf-8');
   expect(content).toContain('Modified content.');
+  expect(content).toContain('Original content.');
 
   // Clean up
   if (fs.existsSync('apps/cli/edit-test.txt')) {
